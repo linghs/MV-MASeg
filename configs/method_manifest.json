@@ -1,0 +1,54 @@
+{
+  "scope": "paper-aligned Task 1 and Task 2 methods; post-competition SegResNet experiments excluded",
+  "environment": {
+    "python": "3.10.20",
+    "pytorch": "2.7.1+cu118",
+    "torchvision": "0.22.1+cu118",
+    "nnunetv2": "2.8.0",
+    "cuda_toolkit": "11.8",
+    "training_gpu": "NVIDIA GeForce RTX 4080 32 GB"
+  },
+  "task1": {
+    "dataset": {"labeled": 27, "unlabeled": 1040, "test": 30, "public_dataset_id": 501},
+    "architecture": "nnU-Net v2 3d_fullres PlainConvUNet",
+    "spacing_zyx": [0.5, 0.357421875, 0.357421875],
+    "patch_size_zyx": [112, 128, 160],
+    "batch_size": 2,
+    "supervised_epochs": 250,
+    "self_training_epochs": 100,
+    "supervised_checkpoint_by_fold": ["best", "final", "best", "final", "final"],
+    "final_checkpoint_epoch_by_fold": [248, 250, 190, 98, 250],
+    "final_members": ["supervised_fold0_best", "supervised_fold1_final", "supervised_fold2_best", "pseudo_top200_fold3_best", "supervised_fold4_final"],
+    "pseudo_top_k": 200,
+    "pseudo_student_fold": 3,
+    "inference": "equal-weight five-member probability ensemble, mirror TTA, threshold 0.5, foreground LCC",
+    "codabench_test": {"dsc": 0.8609732728, "hd": 4.5443396475, "asd": 0.2735395122}
+  },
+  "task2": {
+    "dataset": {"labeled": 105, "test": 20, "public_dataset_id": 502, "original_experiment_dataset_id": 501},
+    "architecture": "nnU-Net v2 3d_fullres PlainConvUNet",
+    "spacing_zyx": [0.5395808815956116, 0.2322079986333847, 0.372658371925354],
+    "patch_size_zyx": [96, 128, 160],
+    "batch_size": 2,
+    "epochs": 250,
+    "checkpoint_by_fold": ["best", "final", "final", "best", "final"],
+    "checkpoint_validation_dsc": [
+      {"fold": 0, "best": 0.8440177964105489, "final": 0.8431385630499806},
+      {"fold": 1, "best": 0.8170006227231181, "final": 0.8209263594185157},
+      {"fold": 2, "best": 0.8287164334884249, "final": 0.8303900606833781},
+      {"fold": 3, "best": 0.8412008196098340, "final": 0.8400364787476025},
+      {"fold": 4, "best": 0.8340181839499408, "final": 0.8340184013274214}
+    ],
+    "selected_checkpoint_sha256": [
+      "10aea332bd5fe9d74abe4260115de15bd75b8671ff8def7b56fa32d018f9f2b8",
+      "59c71ebefd9cdbaad1f490fba1e43dd39a247ef05b54e783327360a7e461d286",
+      "a0d278b6416f100807544ddb5f579340c8c4b309d708738b92f432d2c48a14f64",
+      "1afe6e97c465ba1069d151bde70adb6bc4231fc3a94376c910760f7e3c003a94",
+      "7168f940f12ead8ffab0a19c93cf63beb2dfedaced25ca98259e4619bd51bfe2"
+    ],
+    "checkpoint_selection": "higher fold validation foreground-mean Dice",
+    "inference": "equal-weight five-fold probability ensemble, mirror TTA, combined-foreground 6-connected LCC",
+    "internal_oof": {"raw_dsc": 0.8341106875, "lcc_dsc": 0.8353426244},
+    "codabench_test": {"dsc": 0.8494751384, "hd": 11.0799973959, "asd": 0.5979329036}
+  }
+}

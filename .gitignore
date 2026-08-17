@@ -1,0 +1,23 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.idea/
+.vscode/
+
+# Data, model weights, predictions, and submissions
+*.nii
+*.nii.gz
+*.npz
+*.pkl
+*.pth
+*.pt
+*.zip
+nnUNet_raw/
+nnUNet_preprocessed/
+nnUNet_results/
+predictions/
+outputs/
+work/
+logs/

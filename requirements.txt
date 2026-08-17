@@ -1,0 +1,13 @@
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.7.1+cu118
+torchvision==0.22.1+cu118
+nnunetv2==2.8.0
+monai==1.5.2
+numpy==1.26.4
+scipy==1.15.3
+SimpleITK==2.5.5
+nibabel==5.4.2
+scikit-image==0.25.2
+pandas==2.3.3
+batchgenerators==0.25.3
+batchgeneratorsv2==0.3.3
