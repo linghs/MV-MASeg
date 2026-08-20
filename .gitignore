@@ -5,6 +5,8 @@ __pycache__/
 .mypy_cache/
 .idea/
 .vscode/
+.ipynb_checkpoints/
+cufile.log
 
 # Data, model weights, predictions, and submissions
 *.nii
@@ -13,6 +15,7 @@ __pycache__/
 *.pkl
 *.pth
 *.pt
+*.safetensors
 *.zip
 nnUNet_raw/
 nnUNet_preprocessed/
@@ -21,3 +24,6 @@ predictions/
 outputs/
 work/
 logs/
+runs/
+submission/
+figures/
