@@ -1,5 +1,5 @@
 {
-  "scope": "paper-aligned Task 1 and Task 2 methods; post-competition SegResNet experiments excluded",
+  "scope": "paper-aligned Task 1, Task 2, and Task 3 methods; post-competition SegResNet experiments excluded",
   "environment": {
     "python": "3.10.20",
     "pytorch": "2.7.1+cu118",
@@ -50,5 +50,23 @@
     "inference": "equal-weight five-fold probability ensemble, mirror TTA, combined-foreground 6-connected LCC",
     "internal_oof": {"raw_dsc": 0.8341106875, "lcc_dsc": 0.8353426244},
     "codabench_test": {"dsc": 0.8494751384, "hd": 11.0799973959, "asd": 0.5979329036}
+  },
+  "task3": {
+    "dataset": {"labeled_frames": 180, "foreground_labeled_frames": 118, "unlabeled_frames": 1379, "test_frames": 48},
+    "target_label": 10,
+    "architecture": "DINOv2 ViT-L/14 encoder + lightweight CNN decoder",
+    "image_size_hw": [336, 588],
+    "batch_size": 8,
+    "unlabeled_batch_size": 8,
+    "epochs": 150,
+    "optimizer": "AdamW",
+    "encoder_lr": 0.00001,
+    "decoder_lr": 0.0002,
+    "weight_decay": 0.00001,
+    "loss": "Dice + focal",
+    "mean_teacher": {"ema_decay": 0.99, "warmup_epochs": 20, "unsupervised_weight": 0.6, "ramp_epochs": 30},
+    "freeze_thaw": "freeze DINOv2 encoder for 20 epochs, then unfreeze with encoder_lr",
+    "inference": "student best checkpoint selected on validation score, four-way flip TTA, checkpoint-selected threshold, no morphological post-processing",
+    "paper_reported_evaluation": {"dsc": 0.817, "hd": 42.05, "asd": 7.08}
   }
 }

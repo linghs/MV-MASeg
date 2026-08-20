@@ -1,7 +1,8 @@
-# MV-MASeg: MVAA 2026 Task 1 and Task 2
+# MV-MASeg: MVAA 2026 Task 1, Task 2, and Task 3
 
-This repository contains the paper-aligned training and inference code for our
-MVAA 2026 submission. Our team ranked **4th overall** in the challenge.
+This repository contains the paper-aligned training and inference code for all
+three tasks in our MVAA 2026 submission. Our team ranked **4th overall** in the
+challenge.
 
 This release covers:
 
@@ -12,18 +13,23 @@ This release covers:
 - **Task 2 (3D TEE):** five-fold 3D full-resolution nnU-Net with
   validation-based checkpoint selection, mirror TTA, probability averaging,
   and combined-foreground LCC refinement.
+- **Task 3 (surgical video):** DINOv2-UNet with freeze-thaw adaptation,
+  an EMA Mean Teacher, confidence-filtered pseudo-label supervision, and flip
+  TTA.
 
 Post-competition SegResNet experiments are intentionally excluded because they
 were not part of the final paper.
 
 ## Results
 
-Metrics below are the Codabench test results reported in the paper.
+Task 1 and Task 2 are Codabench test results. Task 3 is the evaluation result
+reported in the paper.
 
 | Task | Method | DSC | HD | ASD |
 |---|---|---:|---:|---:|
 | Task 1 CT | nnU-Net + selected pseudo-label fold + TTA + LCC | 0.860973 | 4.544340 | 0.273540 |
 | Task 2 TEE | selected five-fold nnU-Net + TTA + foreground LCC | 0.849475 | 11.079997 | 0.597933 |
+| Task 3 video | DINOv2-UNet + Semantic Mean Teacher + TTA | 0.817 | 42.05 | 7.08 |
 
 ## Repository layout
 
@@ -32,8 +38,9 @@ configs/                 Exact plans, splits, and method metadata
 common/                  Shared post-processing and submission conversion
 task1/                   CT data conversion, pseudo-labeling, training, inference
 task2/                   TEE data conversion, checkpoint selection, training, inference
+task3/                   Surgical-video DINOv2 Mean Teacher training and inference
 environment.yml          Reproducible Conda environment
-requirements.txt         Exact Python package versions from the training server
+requirements.txt         Recorded Python dependencies and server versions
 ```
 
 Challenge data and model checkpoints are not redistributed. Place them locally
@@ -76,6 +83,11 @@ reference_data/
 └── t2_tee/
     ├── train/train_001-US.nii.gz and train_001-label.nii.gz ...
     └── val/images/val_001-US.nii.gz ... val_020-US.nii.gz
+task3_data/
+├── labeled/REC_xxx/REC_xxx_000118.png
+├── labeled/REC_xxx/REC_xxx_000118_png_Label.tar
+├── unlabeled/images/**/*.png
+└── test/images/**/*.png
 ```
 
 ## Task 1: CT
@@ -188,6 +200,64 @@ averaging over all five selected folds. Post-processing keeps the largest
 6-connected component of the combined foreground while preserving leaflet
 class labels inside that component.
 
+## Task 3: surgical video
+
+Task 3 segments foreground label ID 10 from surgical frames. The paper model is
+a DINOv2 ViT-L/14 encoder with a lightweight CNN decoder. The encoder is frozen
+for the first 20 epochs and then fine-tuned with a lower learning rate. An EMA
+teacher supplies confidence-filtered pseudo-labels for 1,379 unlabeled frames.
+
+### 1. Train the paper configuration
+
+Use either a local DINOv2 checkpoint or allow `timm` to load pretrained
+weights. The command below uses a local checkpoint:
+
+```bash
+python task3/train.py \
+  --labeled-root /path/to/task3_data/labeled \
+  --unlabeled-root /path/to/task3_data/unlabeled/images \
+  --output-dir task3/runs/dinov2_mean_teacher \
+  --arch dinov2_unet \
+  --dinov2-name dinov2_vitl14 \
+  --no-dinov2-pretrained \
+  --dinov2-checkpoint /path/to/model.safetensors \
+  --dinov2-decoder-channels 256 \
+  --freeze-dinov2-epochs 20 \
+  --encoder-lr 1e-5 \
+  --target-label 10 \
+  --image-size 336 588 \
+  --epochs 150 \
+  --batch-size 8 \
+  --unlabeled-batch-size 8 \
+  --lr 2e-4 \
+  --loss-type dice_focal \
+  --semi-warmup-epochs 20 \
+  --unsup-weight 0.6 \
+  --unsup-ramp-epochs 30 \
+  --ema-decay 0.99 \
+  --pseudo-pos-thr 0.70 \
+  --pseudo-neg-thr 0.10 \
+  --val-video-count 2 \
+  --val-only-fg \
+  --val-tta \
+  --amp
+```
+
+### 2. Inference
+
+```bash
+python task3/generate_task3_predictions.py \
+  --checkpoint task3/runs/dinov2_mean_teacher/checkpoints/bestmodel.pth \
+  --data-dir /path/to/task3_data/test/images \
+  --output-dir task3/submission/t3_vid
+```
+
+The script restores architecture, normalization, input resolution, and the
+validation-selected threshold from the checkpoint. It applies four-way flip
+TTA and writes binary PNG masks at the original resolution together with
+`task3_predictions.json`. See `task3/README.md` for data details, alternative
+architectures, and visualization commands.
+
 ## Checkpoints
 
 The scripts expect the following filenames inside the standard nnU-Net results
@@ -197,6 +267,7 @@ folders:
 - selected model alias/copy: `checkpoint_selected.pth`
 - Task 1 pseudo student: dataset `Dataset511_MVAA_Task1_PseudoTop200`, fold 3,
   `checkpoint_best.pth`
+- Task 3: `task3/runs/<experiment>/checkpoints/bestmodel.pth`
 
 Weights are not included because of their size and challenge-data terms. The
 training scripts recreate them from the released splits and configuration.
@@ -206,6 +277,9 @@ training scripts recreate them from the released splits and configuration.
 - Configuration arrays follow nnU-Net's transposed `(z, y, x)` convention.
 - TTA is enabled by default in `nnUNetv2_predict`; do not pass `--disable_tta`.
 - Task 2 LCC is computed on `segmentation > 0`, not independently per class.
+- Task 3 uses a video-level train/validation split and restores its inference
+  threshold from the selected checkpoint; no morphological post-processing is
+  applied.
 - The exact checkpoint choices and paper metrics are recorded in
   `configs/method_manifest.json`.
 - Dataset IDs are unique in this combined release (501 for Task 1, 502 for Task

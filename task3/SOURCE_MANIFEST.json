@@ -1,0 +1,25 @@
+{
+  "imported_on": "2026-08-19",
+  "source_archive": "task3_baseline(1).zip",
+  "source_archive_sha256": "4a295bb06ed5a435dd2e46ba3e800509efaaf90540e6eeb2c2c9377d9d45a9f2",
+  "included_source_sha256_before_local_portability_edits": {
+    "dataset.py": "5205873a3679a97ba5df4423f03beea64da8f202ca81312586df0664ac9d3d57",
+    "generate_task3_predictions.py": "191d9f92ccd6c8a067687d73a9d46bbbd7cb3b0b80d6f58a8b2de8fd8846ce14",
+    "model_factory.py": "b2170dda4aef9aac0aab649324ae017f16847545cd9ec12701b2ffa5339d083a",
+    "train.py": "ad013f9d020ad22011c8e94d0240b2c7a27ff159f2e3c7b77dadffe094f0d10d",
+    "utils.py": "50e4abe0f984baf80afe9cdff7ea45dc3abf05f513ca7221fde0081ee25ab532",
+    "visualize_task3_comparison.py": "c701786274f161c1e85cae86710b59fb8c1ec42210e521b72bdeae42a3f5f329"
+  },
+  "local_portability_edits": [
+    "Changed repository-root defaults from the archive's former directory depth to MV-MASeg/task3.",
+    "Replaced inference-time source constants with argparse options while retaining checkpoint restoration, thresholding, AMP, and flip-TTA behavior.",
+    "Rewrote documentation to distinguish the paper configuration from the archive's conservative v07 recipe."
+  ],
+  "excluded_archive_entries": [
+    ".ipynb_checkpoints/",
+    "cufile.log",
+    "mae_pretrain.py (empty)",
+    "pretrain_dinov2_upernet_decoder.py (empty)",
+    "pretrain_mae.py (empty)"
+  ]
+}

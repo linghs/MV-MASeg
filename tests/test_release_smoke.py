@@ -136,6 +136,50 @@ class ReleaseSmokeTests(unittest.TestCase):
             manifest = json.loads((output / "task2_predictions.json").read_text())
             self.assertEqual(len(manifest["cases"]), 20)
 
+    def test_task3_cli_defaults_and_paper_manifest(self):
+        task3 = ROOT / "task3"
+        probe = (
+            "import json,sys;"
+            f"sys.path.insert(0,{str(task3)!r});"
+            "import train;"
+            "sys.argv=['train.py'];"
+            "a=train.parse_args();"
+            "print(json.dumps({"
+            "'arch':a.arch,'image_size':a.image_size,'epochs':a.epochs,"
+            "'batch_size':a.batch_size,'freeze':a.freeze_dinov2_epochs,"
+            "'semi_warmup':a.semi_warmup_epochs,'unsup_weight':a.unsup_weight,"
+            "'unsup_ramp':a.unsup_ramp_epochs}))"
+        )
+        completed = subprocess.run(
+            [sys.executable, "-c", probe],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        defaults = json.loads(completed.stdout)
+        self.assertEqual(defaults["arch"], "unetplusplus")
+        self.assertEqual(defaults["image_size"], [448, 800])
+        self.assertEqual(defaults["epochs"], 200)
+        self.assertEqual(defaults["batch_size"], 6)
+        self.assertEqual(defaults["freeze"], 20)
+        self.assertEqual(defaults["semi_warmup"], 20)
+        self.assertEqual(defaults["unsup_weight"], 0.6)
+        self.assertEqual(defaults["unsup_ramp"], 30)
+
+        manifest = json.loads((ROOT / "configs/method_manifest.json").read_text())
+        paper = manifest["task3"]
+        self.assertEqual(paper["architecture"], "DINOv2 ViT-L/14 encoder + lightweight CNN decoder")
+        self.assertEqual(paper["image_size_hw"], [336, 588])
+        self.assertEqual(paper["epochs"], 150)
+        self.assertEqual(paper["batch_size"], 8)
+
+        subprocess.run(
+            [sys.executable, str(task3 / "generate_task3_predictions.py"), "--help"],
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
