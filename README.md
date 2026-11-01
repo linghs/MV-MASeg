@@ -288,7 +288,7 @@ training scripts recreate them from the released splits and configuration.
   predictions.
 
 ## Citation
-
+```
 @InProceedings{LiYil_Mitral_MICCAISAT2026,
         author = { Li, Yilin AND Li, Zhuohang AND Ling, Hongshun},
         title = { { Mitral Valve Multi-modality Adaptive Segmentation } },
@@ -299,4 +299,4 @@ training scripts recreate them from the released splits and configuration.
         month = {pending},
         page = {pending}
 }
-
+```
