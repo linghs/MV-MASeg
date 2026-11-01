@@ -3,6 +3,7 @@
 This repository contains the paper-aligned training and inference code for all
 three tasks in our MVAA 2026 submission. Our team ranked **4th overall** in the
 challenge.
+**Paper:** [Mitral Valve Multi-modality Adaptive Segmentation (MVAA 2026)](https://papers.miccai.org/miccai-2026-sat/MVAA_081.html)
 
 This release covers:
 
@@ -288,5 +289,14 @@ training scripts recreate them from the released splits and configuration.
 
 ## Citation
 
-If you use this code, please cite the MV-MASeg challenge paper. Full citation
-metadata will be added after publication.
+@InProceedings{LiYil_Mitral_MICCAISAT2026,
+        author = { Li, Yilin AND Li, Zhuohang AND Ling, Hongshun},
+        title = { { Mitral Valve Multi-modality Adaptive Segmentation } },
+        booktitle = {Medical Image Computing and Computer Assisted Intervention -- MICCAI 2026 Workshops and Challenges},
+        year = {2026},
+        publisher = {Springer Nature Switzerland},
+        volume = {LNCS 17268},
+        month = {pending},
+        page = {pending}
+}
+
